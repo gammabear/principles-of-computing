@@ -141,7 +141,8 @@ class Zombie(poc_grid.Grid):
                     self._visited.set_full(neighbor[0], neighbor[1])
                     self._distance_field[neighbor[0]][neighbor[1]] = self._distance_field[current_cell[0]][current_cell[1]] + 1
                     self._boundary.enqueue(neighbor)
-             
+                    
+                    
         return self._distance_field 
         
     def move_humans(self, zombie_distance):
@@ -157,16 +158,23 @@ class Zombie(poc_grid.Grid):
         for human in self._human_list:
             possible_moves = zombie_grid.eight_neighbors(human[0], human[1])
             possible_moves.append(human)
-            best_move = ()
+            #best_move = ()
             
+            possible_best_move = []
             max_distance = 0
             for move in possible_moves:
                 distance = zombie_distance[move[0]][move[1]]
-                if distance > max_distance and distance < self._grid_height * self._grid_width:
+                if distance >= max_distance and distance < self._grid_height * self._grid_width:
+                    
+                    if distance == max_distance:
+                        possible_best_move.append(move)
+                    else:
+                        del possible_best_move[:]
+                        possible_best_move.append(move)
                     max_distance = zombie_distance[move[0]][move[1]]
-                    best_move = move
-            
-            best_moves.append(best_move)
+ 
+            random.shuffle(possible_best_move)
+            best_moves.append(possible_best_move[0])
         self._human_list = best_moves
         
     
@@ -180,16 +188,47 @@ class Zombie(poc_grid.Grid):
         for zombie in self._zombie_list:
             possible_moves = human_grid.four_neighbors(zombie[0],zombie[1])
             possible_moves.append(zombie)
-            best_move = ()
+            #best_move = ()
             min_distance = self._grid_height * self._grid_width
             
+            possible_best_move = []
             for move in possible_moves:
-                if human_distance[move[0]][move[1]] < min_distance:
+                distance = human_distance[move[0]][move[1]]
+                if distance <= min_distance:
+                    if distance == min_distance:
+                        possible_best_move.append(move)
+                    else:
+                        del possible_best_move[:]
+                        possible_best_move.append(move)
                     min_distance = human_distance[move[0]][move[1]]
-                    best_move = move
-            
-            best_moves.append(best_move)
+ 
+            random.shuffle(possible_best_move)
+            best_moves.append(possible_best_move[0])
         self._zombie_list = best_moves
 
 # start up gui for simulation
 poc_zombie_gui.run_gui(Zombie(30, 40))
+
+#zombie = Zombie(3,3)
+#zombie.add_zombie(0,2)
+#zombie.add_zombie(1,1)
+#zombie.add_zombie(2,0)
+
+
+#print zombie.compute_distance_field(ZOMBIE)
+
+#zombie2 = Zombie(5,5)
+#zombie2.add_zombie(0,0)
+#zombie2.set_full(3,2)
+#zombie2.set_full(2,2)
+#zombie2.set_full(1,2)
+#zombie2.set_full(0,2)
+#zombie2.add_human(3,3)
+
+#zombie3 =Zombie(3, 3, [], [(2, 2)], [(1, 0)])
+#dist = [[4, 3, 2], [3, 2, 1], [2, 1, 0]]
+#zombie3.move_humans(dist)
+
+#print zombie2.compute_distance_field(ZOMBIE)
+
+#print "zombies at: ", zombie2._zombie_list 
